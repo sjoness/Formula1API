@@ -44,9 +44,7 @@ extension URLSession {
                                       lap: String? = nil,
                                       limit: String? = nil,
                                       offset: String? = nil,
-                                      session: URLSession = URLSession.shared,
-                                      completion: @escaping ((Result<T, APIError>) -> Void)) {
-        
+                                      session: URLSession = URLSession.shared) async throws -> T {
         let endpoint = Endpoint(with: subPath,
                                 for: season,
                                 round: round,
@@ -54,23 +52,36 @@ extension URLSession {
                                 limit: limit,
                                 offset: offset)
         let url = endpoint.url
-        
-        session.dataTask(url, session) { result in
-            switch result {
-            case .success(let data):
-                do {
-                    let decode = try subPath.decodingType.decode(from: data)
-                    
-                    completion(.success(decode as! T))
-                } catch (let error) {
+
+        let response: T = try await withCheckedThrowingContinuation({ continuation in
+            session.dataTask(url, session) { result in
+                switch result {
+                case .success(let data):
+                    do {
+                        let decode = try subPath.decodingType.decode(from: data)
+
+                        #if DEBUG
+                        print(decode)
+                        #endif
+
+                        continuation.resume(returning: decode as! T)
+                    } catch (let error) {
+                        #if DEBUG
+                        print(error)
+                        #endif
+
+                        continuation.resume(throwing: error)
+                    }
+                case .failure(let error):
+                    #if DEBUG
                     print(error)
-                    completion(.failure(.network(error.localizedDescription)))
+                    #endif
+
+                    continuation.resume(throwing: error)
                 }
-                
-            case .failure(let error):
-                print(error)
-                completion(.failure(error))
             }
-        }
+        })
+
+        return response
     }
 }
