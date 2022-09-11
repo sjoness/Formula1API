@@ -43,22 +43,16 @@ Access endpoints by the `Formula1API` object.
 
 Example: 
 ```
-Formula1API.allConstructors(for: .year(2020)) { result in
-    switch result {
-        case .success(let constructors):
-            print(schedule)
-        case .failure(let error):
-            print(error)
-    }
+func getRaces() async throws -> [Race] {
+    let schedule = try await Formula1API.raceSchedule(for: Season.year(2022))
+
+    return schedule.data.raceTable.races
 }
 
-Formula1API.constructors { result in
-    switch result {
-        case .success(let constructors):
-            print(schedule)
-        case .failure(let error):
-            print(error)
-    }
+func getConstructors() async throws -> Constructors {
+    let constructors = try await Formula1API.allConstructors()
+
+    return constructors
 }
 
 ```
