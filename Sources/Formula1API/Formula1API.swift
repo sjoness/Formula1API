@@ -92,19 +92,23 @@ public enum Formula1API {
                                                                            offset: limit)
         return constructors
     }
-    //
-    //    public static func driverStandings(for season: Season,
-    //                                       limit: String? = nil,
-    //                                       offset: String? = nil,
-    //                                       completion: @escaping (Result<DriverStandings, APIError>) -> Void) {
-    //
-    //        URLSession.shared.fetch(.driverStandings,
-    //                                for: season,
-    //                                limit: limit,
-    //                                offset: limit) { result in
-    //            completion(result)
-    //        }
-    //    }
+
+
+    /// Fetches Formula 1 Driver standings for a given year
+    /// - Parameters:
+    ///   - season: Season enum case, specified by an Int, which indicates to fetch data for a given year (1950-2020).
+    ///   - limit: Optional property to specify number of items to return per request.
+    ///   - offset: Optional property to indicate starting point of elements from API request.
+    /// - Returns: a model object that represents the driver standings for the spocified year
+    public static func driverStandings(for season: Season,
+                                       limit: String? = nil,
+                                       offset: String? = nil) async throws -> DriverStandings {
+        let driverStandings: DriverStandings = try await URLSession.shared.fetch(.driverStandings,
+                                                                                 for: season,
+                                                                                 limit: limit,
+                                                                                 offset: limit)
+        return driverStandings
+    }
 
     
     /// Fetches Formula 1 Race Schedule for a given year.
